@@ -1,0 +1,3 @@
+<?php
+namespace App\Models; use Illuminate\Database\Eloquent\Model; use Illuminate\Database\Eloquent\Relations\BelongsTo;
+class ScheduleLesson extends Model { protected $fillable=['organization_id','external_id','study_group_id','discipline_id','teacher_id','lesson_date','starts_at','ends_at','room','subgroup','lesson_type','status','source_data']; protected function casts(): array{return ['lesson_date'=>'date','source_data'=>'array'];} public function group(): BelongsTo{return $this->belongsTo(StudyGroup::class,'study_group_id');} public function discipline(): BelongsTo{return $this->belongsTo(Discipline::class);} public function teacher(): BelongsTo{return $this->belongsTo(Teacher::class);} }
