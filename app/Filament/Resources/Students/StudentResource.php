@@ -4,7 +4,7 @@ use App\Filament\Resources\Students\Pages; use App\Models\Student; use Filament\
 use Filament\Forms\Components\DatePicker; use Filament\Forms\Components\Select; use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource; use Filament\Schemas\Schema; use Filament\Tables\Columns\TextColumn; use Filament\Tables\Filters\SelectFilter; use Filament\Tables\Table;
 class StudentResource extends Resource {
- protected static ?string $model=Student::class; protected static ?string $modelLabel='студент'; protected static ?string $pluralModelLabel='Студенты'; protected static ?string $navigationGroup='Контингент';
+ protected static ?string $model=Student::class; protected static ?string $modelLabel='студент'; protected static ?string $pluralModelLabel='Студенты'; protected static string|\\UnitEnum|null $navigationGroup='Контингент';
  public static function form(Schema $schema): Schema { return $schema->components([
   Select::make('organization_id')->label('Организация')->relationship('organization','name')->required()->searchable()->preload(),
   TextInput::make('personal_file_number')->label('№ личного дела'), TextInput::make('last_name')->label('Фамилия')->required(),
