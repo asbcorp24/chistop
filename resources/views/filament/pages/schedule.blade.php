@@ -3,14 +3,23 @@
  <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
   <div class="flex flex-wrap items-end gap-3">
    <div><div class="mb-1 text-xs font-medium text-gray-500">Показывать</div><select wire:model.live="scope" class="rounded-xl"><option value="group">По группе</option><option value="teacher">По преподавателю</option></select></div>
-   @if($scope==='group')<div class="min-w-56 flex-1"><div class="mb-1 text-xs font-medium text-gray-500">Группа</div><select wire:model.live="groupId" class="w-full rounded-xl"><option value="">Все группы</option>@foreach($this->groups as $g)<option value="{{$g->id}}">{{$g->name}}</option>@endforeach</select></div>
-   @else<div class="min-w-64 flex-1"><div class="mb-1 text-xs font-medium text-gray-500">Преподаватель</div><select wire:model.live="teacherId" class="w-full rounded-xl"><option value="">Все преподаватели</option>@foreach($this->teachers as $t)<option value="{{$t->id}}">{{$t->full_name}}</option>@endforeach</select></div>@endif
+   @if($scope==='group')
+    <div class="min-w-56 flex-1"><div class="mb-1 text-xs font-medium text-gray-500">Группа</div><select wire:model.live="groupId" class="w-full rounded-xl"><option value="">Все группы</option>@foreach($this->groups as $g)<option value="{{$g->id}}">{{$g->name}}</option>@endforeach</select></div>
+   @else
+    <div class="min-w-64 flex-1"><div class="mb-1 text-xs font-medium text-gray-500">Преподаватель</div><select wire:model.live="teacherId" class="w-full rounded-xl"><option value="">Все преподаватели</option>@foreach($this->teachers as $t)<option value="{{$t->id}}">{{$t->full_name}}</option>@endforeach</select></div>
+   @endif
    <div class="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800"><button wire:click="$set('mode','day')" class="rounded-lg px-3 py-2 text-sm {{$mode==='day'?'bg-white shadow dark:bg-gray-700':''}}">День</button><button wire:click="$set('mode','week')" class="rounded-lg px-3 py-2 text-sm {{$mode==='week'?'bg-white shadow dark:bg-gray-700':''}}">Неделя</button></div>
   </div>
-  <div class="mt-4 flex items-center justify-between gap-2"><x-filament::button color="gray" wire:click="previous" icon="heroicon-m-chevron-left"/><button wire:click="today" class="font-semibold">{{CarbonCarbon::parse($date)->translatedFormat('d F Y')}}</button><x-filament::button color="gray" wire:click="next" icon="heroicon-m-chevron-right"/></div>
+  <div class="mt-4 flex items-center justify-between gap-2">
+   <x-filament::button color="gray" wire:click="previous" icon="heroicon-m-chevron-left"/>
+   <button wire:click="today" class="font-semibold">{{ $this->selectedDateLabel }}</button>
+   <div class="flex gap-2"><button type="button" onclick="window.print()" class="hidden rounded-lg px-3 py-2 text-sm font-medium ring-1 ring-gray-300 md:block print:hidden">Печать</button><x-filament::button color="gray" wire:click="next" icon="heroicon-m-chevron-right"/></div>
+  </div>
  </div>
  <div class="grid grid-cols-7 gap-2 overflow-x-auto">
- @foreach($this->days as $day)<button wire:click="selectDate('{{$day->toDateString()}}')" class="min-w-24 rounded-xl p-2 text-center {{$day->isSameDay(CarbonCarbon::parse($date))?'bg-primary-600 text-white':'bg-white dark:bg-gray-900'}}"><div class="text-xs">{{$day->translatedFormat('D')}}</div><div class="text-lg font-bold">{{$day->format('d')}}</div></button>@endforeach
+ @foreach($this->days as $day)
+  <button wire:click="selectDate('{{$day->toDateString()}}')" class="min-w-24 rounded-xl p-2 text-center {{$day->toDateString()===$date?'bg-primary-600 text-white':'bg-white dark:bg-gray-900'}}"><div class="text-xs">{{$day->translatedFormat('D')}}</div><div class="text-lg font-bold">{{$day->format('d')}}</div></button>
+ @endforeach
  </div>
  @foreach($this->days as $day)
  @php($lessons=$this->lessonsFor($day->toDateString()))
