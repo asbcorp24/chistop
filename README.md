@@ -22,241 +22,233 @@
 
 # Установка на виртуальный хостинг Timeweb
 
-Ниже описана установка Chistop на обычный виртуальный хостинг Timeweb (не VPS).
+Инструкция ниже проверена для структуры виртуального хостинга Timeweb, где системная команда `php` в SSH может указывать на старый PHP 8.0. Chistop использует Laravel 12 и требует PHP 8.2+, поэтому в примерах принудительно используется PHP 8.3:
 
-## 1. Требования
-
-Перед установкой в панели Timeweb выберите для сайта PHP 8.2 или новее. Для проекта также потребуется MySQL и SSH-доступ с возможностью запуска Composer.
-
-Рекомендуемые PHP-расширения: BCMath, Ctype, cURL, DOM/XML, Fileinfo, Intl, Mbstring, OpenSSL, PDO, PDO MySQL, Tokenizer и XML.
-
-## 2. Создание базы данных
-
-В панели Timeweb создайте новую базу MySQL и отдельного пользователя базы данных.
-
-Сохраните:
-
-- имя базы данных;
-- имя пользователя;
-- пароль;
-- адрес сервера MySQL, указанный Timeweb.
-
-Эти значения понадобятся для файла `.env`.
-
-## 3. Загрузка проекта
-
-Подключитесь к хостингу по SSH и перейдите в каталог, в котором будет находиться приложение.
-
-Пример:
-
-```bash
-cd ~
-git clone https://github.com/asbcorp24/chistop.git
-cd chistop
+```text
+/opt/php8.3/bin/php
 ```
 
-Для последующих обновлений:
+## 1. Проверка PHP
+
+Подключитесь по SSH и выполните:
 
 ```bash
-cd ~/chistop
-git pull origin main
+php -v
+which php
+ls -d /opt/php*
+/opt/php8.3/bin/php -v
 ```
 
-Если Git на тарифе недоступен, проект можно загрузить архивом через файловый менеджер Timeweb, но установка через Git предпочтительнее.
+Если обычный `php -v` показывает PHP 8.0 — это не проблема. Для Chistop не используйте эту команду. Все команды Artisan и Composer ниже запускаются через `/opt/php8.3/bin/php`.
 
-## 4. Установка PHP-зависимостей
+В панели Timeweb для самого сайта также выберите PHP 8.3.
 
-В каталоге проекта выполните:
+## 2. Создание базы MySQL
+
+В панели Timeweb создайте базу MySQL и пользователя. Сохраните имя базы, имя пользователя, пароль и адрес сервера MySQL — они понадобятся в `.env`.
+
+## 3. Размещение проекта
+
+В текущей установке проект можно разместить так:
+
+```text
+~/Chist/public_html
+```
+
+Пример клонирования:
 
 ```bash
-composer install --no-dev --optimize-autoloader
+mkdir -p ~/Chist
+cd ~/Chist
+git clone https://github.com/asbcorp24/chistop.git public_html
+cd ~/Chist/public_html
 ```
 
-Если команда `composer` недоступна напрямую, используйте способ запуска Composer, предоставленный вашим тарифом Timeweb.
+Если репозиторий уже склонирован и приглашение SSH выглядит примерно как:
+
+```text
+~/Chist/public_html$
+```
+
+повторно клонировать ничего не нужно.
+
+## 4. Установка зависимостей
+
+ВАЖНО: не запускайте здесь просто `composer install`, потому что Composer возьмет PHP 8.0 из окружения Timeweb.
+
+Находясь в `~/Chist/public_html`, выполните:
+
+```bash
+/opt/php8.3/bin/php $(which composer) install --no-dev --optimize-autoloader
+```
+
+Проверить Composer можно так:
+
+```bash
+/opt/php8.3/bin/php $(which composer) --version
+```
 
 ## 5. Создание .env
 
-Скопируйте пример конфигурации:
-
 ```bash
+cd ~/Chist/public_html
 cp .env.example .env
 ```
 
-Откройте `.env` и укажите реальные параметры сайта и базы данных:
+Заполните:
 
 ```dotenv
 APP_NAME=Chistop
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://college.example.ru
+APP_URL=https://ВАШ-ДОМЕН
 
 DB_CONNECTION=mysql
-DB_HOST=ИМЯ_СЕРВЕРА_MYSQL
+DB_HOST=СЕРВЕР_MYSQL_TIMEWEB
 DB_PORT=3306
 DB_DATABASE=ИМЯ_БАЗЫ
-DB_USERNAME=ПОЛЬЗОВАТЕЛЬ_БАЗЫ
-DB_PASSWORD=ПАРОЛЬ_БАЗЫ
+DB_USERNAME=ПОЛЬЗОВАТЕЛЬ
+DB_PASSWORD=ПАРОЛЬ
 
 SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 ```
 
-На рабочем сайте обязательно оставляйте `APP_DEBUG=false`.
-
-## 6. Генерация ключа Laravel
-
-Выполните:
+## 6. Ключ Laravel
 
 ```bash
-php artisan key:generate
+/opt/php8.3/bin/php artisan key:generate
 ```
 
-## 7. Корневая директория сайта
+## 7. Корень домена — обязательно /public
 
-Это важный пункт.
-
-Домен должен смотреть не на корень репозитория `chistop`, а на каталог:
+Сам проект находится здесь:
 
 ```text
-chistop/public
+~/Chist/public_html
 ```
 
-В настройках сайта/домена Timeweb укажите каталог `public` проекта как корневую директорию сайта.
+Но корневой каталог сайта в панели Timeweb должен быть:
 
-Файл `.env`, каталог `vendor`, исходный код приложения и остальные служебные файлы Laravel не должны быть доступны непосредственно из интернета.
+```text
+~/Chist/public_html/public
+```
 
-## 8. Миграции базы данных
+То есть браузер должен видеть только Laravel-каталог `public`.
 
-После настройки `.env` выполните:
+Нельзя направлять домен непосредственно на `~/Chist/public_html`: в таком случае служебные файлы Laravel могут оказаться доступны извне.
+
+## 8. База данных
+
+После заполнения `.env`:
 
 ```bash
-php artisan migrate --force
+cd ~/Chist/public_html
+/opt/php8.3/bin/php artisan migrate --force
+/opt/php8.3/bin/php artisan db:seed --force
 ```
 
-Для первоначального заполнения системных данных:
-
-```bash
-php artisan db:seed --force
-```
-
-При текущей начальной конфигурации создается администратор:
+Начальный администратор:
 
 ```text
 Логин: admin@chistop.local
 Пароль: ChangeMe123!
 ```
 
-Сразу после первого входа пароль необходимо изменить. На production-системе не оставляйте пароль по умолчанию.
+После первого входа пароль необходимо сменить.
 
-## 9. Публичное хранилище
-
-Выполните:
+## 9. Storage
 
 ```bash
-php artisan storage:link
+/opt/php8.3/bin/php artisan storage:link
 ```
 
-Это создаст ссылку `public/storage` на `storage/app/public`.
-
-## 10. Права на каталоги
-
-Laravel должен иметь возможность записывать в:
+Laravel должен иметь права записи в:
 
 ```text
 storage/
 bootstrap/cache/
 ```
 
-Не устанавливайте без необходимости права `777`. Используйте штатные права пользователя виртуального хостинга.
+Права `777` без необходимости не устанавливайте.
 
-## 11. Очистка и оптимизация
-
-После установки или обновления приложения выполните:
+## 10. Оптимизация
 
 ```bash
-php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+/opt/php8.3/bin/php artisan optimize:clear
+/opt/php8.3/bin/php artisan config:cache
+/opt/php8.3/bin/php artisan route:cache
+/opt/php8.3/bin/php artisan view:cache
 ```
 
-## 12. Планировщик Laravel
+## 11. Проверка
 
-Когда в Chistop появятся фоновые регламентные задания, в панели Timeweb необходимо добавить Cron-задачу, запускаемую каждую минуту:
-
-```bash
-cd /ПОЛНЫЙ/ПУТЬ/chistop && php artisan schedule:run
-```
-
-Точный абсолютный путь зависит от аккаунта Timeweb.
-
-## 13. Очереди
-
-Chistop использует очередь для длительных операций, в том числе крупных импортов XML.
-
-На виртуальном хостинге, где постоянный `queue:work` может быть недоступен, можно запускать обработку очереди через Cron:
-
-```bash
-cd /ПОЛНЫЙ/ПУТЬ/chistop && php artisan queue:work --stop-when-empty --tries=3
-```
-
-Например, раз в минуту. Если тариф позволяет постоянно работающие процессы, предпочтительнее использовать обычный Laravel queue worker.
-
-## 14. Проверка установки
-
-Откройте:
+После настройки домена откройте:
 
 ```text
 https://ВАШ-ДОМЕН/up
 ```
 
-Laravel должен вернуть успешный ответ.
-
-После этого откройте:
+Затем:
 
 ```text
 https://ВАШ-ДОМЕН/admin
 ```
 
-Должна появиться страница входа Filament.
+На `/admin` должна открыться авторизация Filament.
 
-## 15. Обновление Chistop
+## 12. Обновление из main
 
-После новых коммитов в `main`:
+Для установки наших следующих изменений:
 
 ```bash
-cd ~/chistop
+cd ~/Chist/public_html
 git pull origin main
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+/opt/php8.3/bin/php $(which composer) install --no-dev --optimize-autoloader
+/opt/php8.3/bin/php artisan migrate --force
+/opt/php8.3/bin/php artisan optimize:clear
+/opt/php8.3/bin/php artisan config:cache
+/opt/php8.3/bin/php artisan route:cache
+/opt/php8.3/bin/php artisan view:cache
 ```
 
-Если обновление содержит новые frontend-зависимости или собранные assets, дополнительно выполните действия, указанные в примечании к конкретному релизу.
+## 13. Cron и очереди
 
-## 16. Если после установки ошибка 500
-
-Сначала временно посмотрите журнал Laravel:
+Планировщик Laravel:
 
 ```bash
+cd /ПОЛНЫЙ/ПУТЬ/Chist/public_html && /opt/php8.3/bin/php artisan schedule:run
+```
+
+Очередь для XML-импортов и других фоновых задач:
+
+```bash
+cd /ПОЛНЫЙ/ПУТЬ/Chist/public_html && /opt/php8.3/bin/php artisan queue:work --stop-when-empty --tries=3
+```
+
+На виртуальном хостинге эти команды можно назначить через Cron.
+
+## 14. Диагностика
+
+Если Composer снова пишет:
+
+```text
+your php version (8.0.30) does not satisfy that requirement
+```
+
+значит Composer был запущен обычной командой `composer`. Используйте:
+
+```bash
+/opt/php8.3/bin/php $(which composer) install --no-dev --optimize-autoloader
+```
+
+Если сайт возвращает ошибку 500:
+
+```bash
+cd ~/Chist/public_html
 tail -n 100 storage/logs/laravel.log
+/opt/php8.3/bin/php artisan optimize:clear
 ```
 
-Проверьте:
-
-1. выбранную версию PHP;
-2. наличие `vendor/`;
-3. наличие `APP_KEY`;
-4. параметры MySQL в `.env`;
-5. права записи в `storage` и `bootstrap/cache`;
-6. что корень домена указывает именно на `public`.
-
-После исправления выполните:
-
-```bash
-php artisan optimize:clear
-```
+Проверьте `APP_KEY`, параметры MySQL, права `storage/` и `bootstrap/cache/`, а также что домен направлен именно на `~/Chist/public_html/public`.
