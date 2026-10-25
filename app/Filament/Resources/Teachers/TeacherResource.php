@@ -4,7 +4,7 @@ use App\Filament\Resources\Teachers\Pages; use App\Models\Teacher; use Filament\
 use Filament\Forms\Components\Select; use Filament\Forms\Components\TextInput; use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource; use Filament\Schemas\Schema; use Filament\Tables\Columns\IconColumn; use Filament\Tables\Columns\TextColumn; use Filament\Tables\Filters\SelectFilter; use Filament\Tables\Table;
 class TeacherResource extends Resource {
- protected static ?string $model=Teacher::class; protected static ?string $modelLabel='преподаватель'; protected static ?string $pluralModelLabel='Преподаватели'; protected static ?string $navigationGroup='Контингент';
+ protected static ?string $model=Teacher::class; protected static ?string $modelLabel='преподаватель'; protected static ?string $pluralModelLabel='Преподаватели'; protected static string|\\UnitEnum|null $navigationGroup='Контингент';
  public static function form(Schema $schema): Schema { return $schema->components([
   Select::make('organization_id')->label('Организация')->relationship('organization','name')->required()->searchable()->preload(),
   Select::make('department_id')->label('Подразделение')->relationship('department','name')->searchable()->preload(),
