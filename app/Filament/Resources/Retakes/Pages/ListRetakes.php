@@ -1,0 +1,2 @@
+<?php
+namespace App\Filament\Resources\Retakes\Pages; use App\Filament\Resources\Retakes\RetakeResource; use Filament\Actions\CreateAction; use Filament\Resources\Pages\ListRecords; class ListRetakes extends ListRecords {protected static string $resource=RetakeResource::class; protected function getHeaderActions(): array{return [CreateAction::make()->label('Назначить пересдачу')];}}
