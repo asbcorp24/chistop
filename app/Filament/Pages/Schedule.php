@@ -11,6 +11,7 @@ class Schedule extends Page {
  public function selectDate(string $d): void {$this->date=$d;}
  public function getGroupsProperty(){return StudyGroup::query()->where('status','active')->orderBy('name')->get();}
  public function getTeachersProperty(){return Teacher::query()->where('is_active',true)->orderBy('last_name')->orderBy('first_name')->get();}
+ public function getSelectedDateLabelProperty(): string {return Carbon::parse($this->date)->translatedFormat('d F Y');}
  public function getDaysProperty(){$d=Carbon::parse($this->date);$s=$this->mode==='week'?$d->copy()->startOfWeek():$d;return collect(range(0,$this->mode==='week'?6:0))->map(fn($i)=>$s->copy()->addDays($i));}
  public function lessonsFor(string $date){return ScheduleLesson::with(['group','discipline','teacher'])->whereDate('lesson_date',$date)->when($this->scope==='group'&&$this->groupId,fn($q)=>$q->where('study_group_id',$this->groupId))->when($this->scope==='teacher'&&$this->teacherId,fn($q)=>$q->where('teacher_id',$this->teacherId))->orderByRaw('COALESCE(pair_number, 999)')->orderBy('starts_at')->get();}
 }
