@@ -20,7 +20,7 @@ class OrganizationResource extends Resource
     protected static ?string $modelLabel = 'организация';
     protected static ?string $pluralModelLabel = 'Организации';
     protected static ?string $navigationLabel = 'Организации';
-    protected static string|\\UnitEnum|null $navigationGroup = 'Структура колледжа';
+    protected static string|\UnitEnum|null $navigationGroup = 'Структура колледжа';
 
     public static function form(Schema $schema): Schema { return $schema->components([
         TextInput::make('name')->label('Полное наименование')->required()->maxLength(255),
