@@ -15,7 +15,7 @@ use Filament\Tables\Table;
 class DepartmentResource extends Resource {
  protected static ?string $model=Department::class;
  protected static ?string $modelLabel='подразделение'; protected static ?string $pluralModelLabel='Подразделения';
- protected static ?string $navigationGroup='Структура колледжа';
+ protected static string|\\UnitEnum|null $navigationGroup='Структура колледжа';
  public static function form(Schema $schema): Schema { return $schema->components([
   Select::make('organization_id')->label('Организация')->relationship('organization','name')->required()->searchable()->preload(),
   Select::make('parent_id')->label('Родительское подразделение')->relationship('parent','name')->searchable()->preload(),
