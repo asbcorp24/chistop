@@ -7,5 +7,5 @@ class ScheduleLessonResource extends Resource {
  TextColumn::make('lesson_date')->label('Дата')->date('d.m.Y')->sortable(),TextColumn::make('starts_at')->label('Начало'),TextColumn::make('ends_at')->label('Окончание'),
  TextColumn::make('group.name')->label('Группа')->searchable(),TextColumn::make('discipline.name')->label('Дисциплина')->searchable()->wrap(),TextColumn::make('teacher.full_name')->label('Преподаватель'),TextColumn::make('room')->label('Кабинет'),TextColumn::make('lesson_type')->label('Вид занятия')->toggleable()
  ])->filters([SelectFilter::make('study_group_id')->label('Группа')->relationship('group','name'),SelectFilter::make('teacher_id')->label('Преподаватель')->relationship('teacher','last_name')])->defaultSort('lesson_date');}
- public static function canCreate(): bool{return false;} public static function getPages(): array{return ['index'=>Pages\ListScheduleLessons::route('/')];}
+ public static function shouldRegisterNavigation(): bool{return false;} public static function canCreate(): bool{return false;} public static function getPages(): array{return ['index'=>Pages\ListScheduleLessons::route('/')];}
 }
