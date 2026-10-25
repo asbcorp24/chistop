@@ -1,0 +1,2 @@
+<?php
+namespace App\Filament\Resources\Retakes\Pages; use App\Filament\Resources\Retakes\RetakeResource; use Filament\Resources\Pages\CreateRecord; class CreateRetake extends CreateRecord {protected static string $resource=RetakeResource::class;}
