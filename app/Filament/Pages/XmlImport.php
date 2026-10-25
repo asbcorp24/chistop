@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 use App\Models\ImportBatch;
 use App\Models\ImportError;
 use App\Models\Organization;
+use App\Services\RectorXmlImportService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Storage;
@@ -76,14 +77,21 @@ class XmlImport extends Page
                 'stored_path' => $stored,
                 'root' => $xml->getName(),
                 'teachers' => isset($xml->teachers) ? count($xml->teachers->teacher) : 0,
-                'classes' => isset($xml->classes) ? count($xml->classes->klass) : 0,
+                'classes' => isset($xml->classes) ? count($xml->classes->class) : 0,
                 'subjects' => isset($xml->subjects) ? count($xml->subjects->subject) : 0,
                 'loads' => isset($xml->loads) ? count($xml->loads->load) : 0,
                 'scheds' => isset($xml->scheds) ? count($xml->scheds->sched) : 0,
             ],
         ]);
 
-        Notification::make()->title('XML принят')->body('Создан запуск импорта №'.$batch->id.'. Файл проверен и поставлен в очередь обработки.')->success()->send();
+        try {
+            app(RectorXmlImportService::class)->run($batch, $contents);
+            $batch->refresh();
+            Notification::make()->title('XML импортирован')->body('Занятий: '.($batch->meta['lessons'] ?? 0).'. Групп: '.($batch->meta['classes'] ?? 0).'. Преподавателей: '.($batch->meta['teachers'] ?? 0).'.')->success()->send();
+        } catch (\Throwable $e) {
+            report($e);
+            Notification::make()->title('Ошибка импорта XML')->body($e->getMessage())->danger()->send();
+        }
         $this->xmlFile = null;
         $this->redirect('/admin/import-batches');
     }
