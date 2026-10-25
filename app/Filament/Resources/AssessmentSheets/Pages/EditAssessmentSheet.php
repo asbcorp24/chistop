@@ -1,0 +1,2 @@
+<?php
+namespace App\Filament\Resources\AssessmentSheets\Pages; use App\Filament\Resources\AssessmentSheets\AssessmentSheetResource; use Filament\Resources\Pages\EditRecord; class EditAssessmentSheet extends EditRecord {protected static string $resource=AssessmentSheetResource::class;}
