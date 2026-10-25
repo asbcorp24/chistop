@@ -1,0 +1,12 @@
+<x-filament-panels::page>
+<div class="space-y-5">
+ <label class="block"><span class="text-sm font-medium">Ведомость</span><select wire:model.live="sheetId" class="mt-1 w-full rounded-lg border-gray-300 dark:bg-gray-900"><option value="">Выберите ведомость</option>@foreach($this->sheets as $s)<option value="{{ $s->id }}">{{ $s->number ?: 'Без номера' }} · {{ $s->group?->name }} · {{ $s->discipline?->name }} · {{ $s->status }}</option>@endforeach</select></label>
+ @if($this->sheet)
+ <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900"><div class="font-semibold">{{ $this->sheet->group?->name }} — {{ $this->sheet->discipline?->name }}</div><div class="mt-1 text-sm text-gray-500">{{ $this->sheet->academic_year }} · семестр {{ $this->sheet->semester }} · {{ $this->sheet->assessment_date?->format('d.m.Y') }} · {{ $this->sheet->status==='closed'?'Закрыта':'Доступна для ввода' }}</div></div>
+ <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"><table class="w-full text-sm"><thead><tr class="bg-gray-50 dark:bg-gray-800"><th class="p-3 text-left">Студент</th><th class="p-3">Результат</th><th class="p-3">Оценка</th><th class="p-3 text-left">Комментарий</th></tr></thead><tbody>
+ @foreach($rows as $id=>$row)<tr class="border-t border-gray-100 dark:border-gray-800"><td class="p-3 font-medium">{{ $row['student'] }}</td><td class="p-2"><select wire:model="rows.{{ $id }}.result" @disabled($this->sheet->status==='closed') class="rounded-lg"><option value="">—</option><option value="зачтено">Зачтено</option><option value="не зачтено">Не зачтено</option><option value="неявка">Неявка</option></select></td><td class="p-2"><input wire:model="rows.{{ $id }}.grade" @disabled($this->sheet->status==='closed') class="w-20 rounded-lg" placeholder="—"></td><td class="p-2"><input wire:model="rows.{{ $id }}.comment" @disabled($this->sheet->status==='closed') class="w-full rounded-lg"></td></tr>@endforeach
+ </tbody></table></div>
+ @if($this->sheet->status!=='closed')<div class="flex flex-wrap gap-3"><x-filament::button wire:click="save" icon="heroicon-o-check">Сохранить</x-filament::button><x-filament::button wire:click="closeSheet" color="danger" icon="heroicon-o-lock-closed" wire:confirm="Закрыть ведомость? После закрытия редактирование будет запрещено.">Закрыть ведомость</x-filament::button></div>@endif
+ @endif
+</div>
+</x-filament-panels::page>
