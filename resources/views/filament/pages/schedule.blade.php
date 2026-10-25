@@ -15,16 +15,16 @@
 .schedule-daybtn{border:1px solid rgba(128,128,128,.22);border-radius:12px;padding:9px 5px;text-align:center;cursor:pointer;background:rgba(128,128,128,.06)}
 .schedule-daybtn.active{background:#2563eb;border-color:#2563eb;color:#fff}
 .schedule-daybtn .dow{font-size:11px;text-transform:uppercase;opacity:.75}.schedule-daybtn .num{font-size:19px;font-weight:800;margin-top:2px}
-.schedule-grid{display:grid;grid-template-columns:repeat(7,minmax(210px,1fr));gap:10px;overflow-x:auto;padding-bottom:8px}
-.schedule-column{min-width:210px;border:1px solid rgba(128,128,128,.2);border-radius:14px;background:rgba(128,128,128,.035);overflow:hidden}
+.schedule-grid{display:flex;flex-direction:column;gap:12px}.schedule-day-section{border:1px solid rgba(128,128,128,.2);border-radius:14px;overflow:hidden;background:rgba(128,128,128,.035)}
+.schedule-column{width:100%}
 .schedule-column-head{padding:11px 12px;border-bottom:1px solid rgba(128,128,128,.18);font-weight:700;text-transform:capitalize}
-.schedule-lessons{padding:8px;display:flex;flex-direction:column;gap:8px}
+.schedule-lessons{padding:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
 .lesson-card{border-left:4px solid #2563eb;border-radius:10px;padding:10px;background:rgba(128,128,128,.08)}
 .lesson-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.lesson-pair{font-size:12px;font-weight:800;color:#2563eb}.lesson-time{font-size:12px;opacity:.7;white-space:nowrap}
 .lesson-name{font-weight:700;margin-top:5px;line-height:1.25}.lesson-meta{font-size:12px;opacity:.72;margin-top:5px;line-height:1.45}.lesson-room{font-weight:700}
 .lesson-badge{display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:2px 7px;margin-top:6px;background:#f59e0b;color:#111827}.lesson-card.cancelled{border-left-color:#ef4444;opacity:.65}.lesson-card.cancelled .lesson-name{text-decoration:line-through}
 .schedule-empty{padding:20px 8px;text-align:center;font-size:12px;opacity:.5}
-@media(max-width:900px){.schedule-filters{grid-template-columns:1fr}.schedule-nav{grid-template-columns:42px 1fr 42px}.schedule-print{display:none}.schedule-weekbar{overflow-x:auto;grid-template-columns:repeat(7,64px)}.schedule-grid{display:block;overflow:visible}.schedule-column{margin-bottom:12px;min-width:0}.schedule-column.empty{display:none}}
+@media(max-width:900px){.schedule-filters{grid-template-columns:1fr}.schedule-nav{grid-template-columns:42px 1fr 42px}.schedule-print{display:none}.schedule-weekbar{overflow-x:auto;grid-template-columns:repeat(7,64px)}.schedule-lessons{grid-template-columns:1fr}.schedule-column.empty{display:none}}
 @media print{.schedule-toolbar,.schedule-weekbar,aside,header,.fi-topbar,.fi-sidebar{display:none!important}.schedule-grid{overflow:visible;grid-template-columns:repeat(5,1fr)}.schedule-column{min-width:0}.schedule-column:nth-child(n+6){display:none}.fi-main{max-width:none!important}}
 </style>
 <div class="schedule-shell">
@@ -48,7 +48,7 @@
  <div class="schedule-grid">
  @foreach($this->days as $day)
  @php($lessons=$this->lessonsFor($day->toDateString()))
- <section class="schedule-column {{$lessons->isEmpty()?'empty':''}}">
+ <section class="schedule-day-section schedule-column {{$lessons->isEmpty()?'empty':''}}">
   <div class="schedule-column-head">{{$day->translatedFormat('D, d F')}}</div>
   <div class="schedule-lessons">
    @forelse($lessons as $lesson)
