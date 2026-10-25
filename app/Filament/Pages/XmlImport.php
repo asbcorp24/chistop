@@ -51,7 +51,16 @@ class XmlImport extends Page
             ->first();
 
         if ($duplicate) {
-            Notification::make()->title('Этот XML уже загружался')->body('Запуск №'.$duplicate->id.' · '.$duplicate->status)->warning()->send();
+            try {
+                app(RectorXmlImportService::class)->run($duplicate, $contents);
+                $duplicate->refresh();
+                Notification::make()->title('XML синхронизирован повторно')->body('Занятий: '.($duplicate->meta['lessons'] ?? 0).'.')->success()->send();
+                $this->xmlFile = null;
+                $this->redirect('/admin/schedule');
+            } catch (\Throwable $e) {
+                report($e);
+                Notification::make()->title('Ошибка повторного импорта')->body($e->getMessage())->danger()->send();
+            }
             return;
         }
 
@@ -93,6 +102,6 @@ class XmlImport extends Page
             Notification::make()->title('Ошибка импорта XML')->body($e->getMessage())->danger()->send();
         }
         $this->xmlFile = null;
-        $this->redirect('/admin/import-batches');
+        $this->redirect('/admin/schedule');
     }
 }
