@@ -1,0 +1,18 @@
+<?php
+namespace App\Filament\Pages;
+use App\Models\{CurriculumPlan,CurriculumTopic,Discipline,Organization,ScheduleLesson,StudyGroup,Teacher};
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+class Curriculum extends Page {
+ protected static string|\BackedEnum|null $navigationIcon='heroicon-o-book-open'; protected static ?string $navigationLabel='Рабочие программы и КТП'; protected static string|\UnitEnum|null $navigationGroup='Учебная часть'; protected static ?int $navigationSort=4; protected static ?string $title='Рабочие программы и КТП'; protected string $view='filament.pages.curriculum';
+ public ?int $planId=null,$groupId=null,$disciplineId=null,$teacherId=null; public string $title='',$academicYear='',$semester=''; public string $topicTitle='',$topicSection='',$topicHours='1',$topicControl='';
+ public function mount():void{$this->academicYear=now()->month>=8?now()->year.'/'.(now()->year+1):(now()->year-1).'/'.now()->year;$this->teacherId=auth()->user()?->teacher_id;}
+ public function getPlansProperty(){return CurriculumPlan::with(['group','discipline','teacher','topics'])->when(auth()->user()?->teacher_id,fn($q)=>$q->where('teacher_id',auth()->user()->teacher_id))->orderByDesc('id')->get();}
+ public function getGroupsProperty(){return StudyGroup::where('status','active')->orderBy('name')->get();} public function getDisciplinesProperty(){return Discipline::where('is_active',true)->orderBy('name')->get();} public function getTeachersProperty(){return Teacher::where('is_active',true)->orderBy('last_name')->get();}
+ public function getCurrentPlanProperty(){return $this->planId?CurriculumPlan::with(['group','discipline','teacher','topics'])->find($this->planId):null;}
+ public function createPlan():void{$this->validate(['groupId'=>'required|exists:study_groups,id','disciplineId'=>'required|exists:disciplines,id','academicYear'=>'required|string|max:20']);$org=StudyGroup::findOrFail($this->groupId)->organization_id;$teacher=auth()->user()?->teacher_id?:$this->teacherId;$p=CurriculumPlan::firstOrCreate(['organization_id'=>$org,'study_group_id'=>$this->groupId,'discipline_id'=>$this->disciplineId,'teacher_id'=>$teacher,'academic_year'=>$this->academicYear,'semester'=>$this->semester?:null],['title'=>$this->title?:null,'created_by'=>auth()->id(),'status'=>'active']);$this->planId=$p->id;Notification::make()->title('Рабочая программа открыта')->success()->send();}
+ public function openPlan(int $id):void{$p=CurriculumPlan::findOrFail($id);if(auth()->user()?->teacher_id&&$p->teacher_id!==auth()->user()->teacher_id)abort(403);$this->planId=$id;}
+ public function addTopic():void{$p=$this->currentPlan;if(!$p)return;$this->validate(['topicTitle'=>'required|string|max:2000','topicHours'=>'required|numeric|min:0.1|max:999']);CurriculumTopic::create(['curriculum_plan_id'=>$p->id,'sort_order'=>($p->topics()->max('sort_order')??0)+1,'section'=>$this->topicSection?:null,'title'=>$this->topicTitle,'planned_hours'=>$this->topicHours,'control_type'=>$this->topicControl?:null]);$this->topicTitle=$this->topicSection=$this->topicControl='';$this->topicHours='1';Notification::make()->title('Тема КТП добавлена')->success()->send();}
+ public function getPlanProgress(int $id):array{$p=CurriculumPlan::with('topics')->find($id);$planned=(float)$p->topics->sum('planned_hours');$done=ScheduleLesson::where('curriculum_topic_id','!=',null)->whereIn('curriculum_topic_id',$p->topics->pluck('id'))->whereDate('lesson_date','<=',today())->where('status','!=','cancelled')->count();return compact('planned','done');}
+ public static function canAccess():bool{$u=auth()->user();return (bool)($u&&($u->teacher_id||in_array($u->role,['admin','superadmin','head_academic','academic_head'],true)));}
+}
