@@ -19,8 +19,8 @@
   <div class="space-y-2">
    @forelse($lessons as $lesson)
    <div class="grid grid-cols-[92px_1fr] gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 md:grid-cols-[100px_1.5fr_1fr_1fr_100px]">
-    <div><div class="font-bold">{{substr($lesson->starts_at,0,5)}}</div><div class="text-xs text-gray-500">{{substr($lesson->ends_at,0,5)}}</div></div>
-    <div><div class="font-semibold">{{$lesson->discipline?->name}}</div><div class="text-xs text-gray-500 md:hidden">{{$lesson->group?->name}} · {{$lesson->teacher?->full_name}}</div>@if($lesson->subgroup)<span class="text-xs text-primary-600">{{$lesson->subgroup}}</span>@endif</div>
+    <div>@if($lesson->pair_number)<div class="text-xs font-semibold text-primary-600">{{$lesson->pair_number}} пара</div>@endif<div class="font-bold">{{substr($lesson->starts_at,0,5)}}</div><div class="text-xs text-gray-500">{{substr($lesson->ends_at,0,5)}}</div></div>
+    <div><div class="flex flex-wrap items-center gap-2"><div class="font-semibold {{$lesson->change_type==='cancelled'?'line-through opacity-60':''}}">{{$lesson->discipline?->name}}</div>@if($lesson->change_type)<span class="rounded-full px-2 py-0.5 text-xs font-semibold {{$lesson->change_type==='cancelled'?'bg-danger-50 text-danger-700':($lesson->change_type==='replacement'?'bg-warning-50 text-warning-700':'bg-info-50 text-info-700')}}">{{['cancelled'=>'Отменено','replacement'=>'Замена','moved'=>'Перенос'][$lesson->change_type]??'Изменено'}}</span>@endif</div><div class="text-xs text-gray-500 md:hidden">{{$lesson->group?->name}} · {{$lesson->teacher?->full_name}}</div>@if($lesson->subgroup)<span class="text-xs text-primary-600">{{$lesson->subgroup}}</span>@endif @if($lesson->change_note)<div class="mt-1 text-xs font-medium text-warning-700">{{$lesson->change_note}}</div>@endif</div>
     <div class="hidden md:block">{{$lesson->group?->name}}</div><div class="hidden md:block">{{$lesson->teacher?->full_name}}</div>
     <div><div class="font-medium">{{$lesson->room}}</div><div class="text-xs text-gray-500">{{$lesson->lesson_type}}</div></div>
    </div>
@@ -29,4 +29,5 @@
  </section>
  @endforeach
 </div>
+<style>@media print{aside,header,.fi-topbar,.fi-sidebar,.fi-header-actions{display:none!important}main{padding:0!important}.fi-main{max-width:none!important}.shadow-sm{box-shadow:none!important}}</style>
 </x-filament-panels::page>
