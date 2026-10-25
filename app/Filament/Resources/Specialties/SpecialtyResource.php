@@ -14,7 +14,7 @@ class SpecialtyResource extends Resource {
  protected static ?string $model=Specialty::class;
  protected static ?string $modelLabel='специальность';
  protected static ?string $pluralModelLabel='Специальности';
- protected static ?string $navigationGroup='Структура колледжа';
+ protected static string|\\UnitEnum|null $navigationGroup='Структура колледжа';
  public static function form(Schema $schema): Schema { return $schema->components([
   Select::make('organization_id')->label('Организация')->relationship('organization','name')->required()->searchable()->preload(),
   TextInput::make('code')->label('Код')->required(), TextInput::make('name')->label('Наименование')->required(),
