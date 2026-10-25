@@ -1,0 +1,3 @@
+<?php
+namespace App\Filament\Resources\AssessmentSheets\Pages; use App\Filament\Resources\AssessmentSheets\AssessmentSheetResource; use App\Models\StudentGroupEnrollment; use Filament\Resources\Pages\CreateRecord;
+class CreateAssessmentSheet extends CreateRecord {protected static string $resource=AssessmentSheetResource::class; protected function afterCreate(): void {StudentGroupEnrollment::query()->where('study_group_id',$this->record->study_group_id)->whereNull('ended_at')->pluck('student_id')->each(fn($id)=>$this->record->rows()->firstOrCreate(['student_id'=>$id]));}}
