@@ -1,0 +1,2 @@
+<?php
+namespace App\Filament\Resources\Retakes\Pages; use App\Filament\Resources\Retakes\RetakeResource; use Filament\Resources\Pages\EditRecord; class EditRetake extends EditRecord {protected static string $resource=RetakeResource::class;}
