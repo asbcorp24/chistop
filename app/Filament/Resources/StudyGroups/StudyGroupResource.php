@@ -4,7 +4,7 @@ use App\Filament\Resources\StudyGroups\Pages; use App\Models\StudyGroup; use Fil
 use Filament\Forms\Components\DatePicker; use Filament\Forms\Components\Select; use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource; use Filament\Schemas\Schema; use Filament\Tables\Columns\TextColumn; use Filament\Tables\Filters\SelectFilter; use Filament\Tables\Table;
 class StudyGroupResource extends Resource {
- protected static ?string $model=StudyGroup::class; protected static ?string $modelLabel='учебная группа'; protected static ?string $pluralModelLabel='Учебные группы'; protected static string|\\UnitEnum|null $navigationGroup='Контингент';
+ protected static ?string $model=StudyGroup::class; protected static ?string $modelLabel='учебная группа'; protected static ?string $pluralModelLabel='Учебные группы'; protected static string|\UnitEnum|null $navigationGroup='Контингент';
  public static function form(Schema $schema): Schema { return $schema->components([
   Select::make('organization_id')->label('Организация')->relationship('organization','name')->required()->searchable()->preload(),
   Select::make('specialty_id')->label('Специальность')->relationship('specialty','name')->searchable()->preload(),
