@@ -1,0 +1,3 @@
+<?php
+namespace App\Filament\Resources\AssessmentSheets\Pages; use App\Filament\Resources\AssessmentSheets\AssessmentSheetResource; use Filament\Actions\CreateAction; use Filament\Resources\Pages\ListRecords;
+class ListAssessmentSheets extends ListRecords {protected static string $resource=AssessmentSheetResource::class; protected function getHeaderActions(): array{return [CreateAction::make()->label('Создать ведомость')];}}
