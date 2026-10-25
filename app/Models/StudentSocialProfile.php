@@ -1,0 +1,3 @@
+<?php
+namespace App\Models;use Illuminate\Database\Eloquent\Model;
+class StudentSocialProfile extends Model{protected $fillable=['student_id','family_status','family_members','children_in_family','housing_status','lives_in_dormitory','low_income_family','large_family','orphan_status','guardianship','needs_accessibility','needs_followup','contact_person','contact_phone','notes'];protected function casts():array{return ['lives_in_dormitory'=>'boolean','low_income_family'=>'boolean','large_family'=>'boolean','orphan_status'=>'boolean','guardianship'=>'boolean','needs_accessibility'=>'boolean','needs_followup'=>'boolean'];}public function student(){return $this->belongsTo(Student::class);}}
